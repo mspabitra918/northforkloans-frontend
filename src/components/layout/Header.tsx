@@ -1,18 +1,38 @@
 "use client";
 
 import { BRAND, NAV_LINKS } from "@/src/lib/constants";
-import { getSession } from "@/src/lib/session";
+import { clearSession, getSession, SESSION_EVENT } from "@/src/lib/session";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
+import ProfileMenu from "../ui/ProfileMenu";
+import { usePathname, useRouter } from "next/navigation";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<any>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
+  // Keep the header in sync with the session. The Header lives in a persistent
+  // layout that doesn't remount on navigation, so a one-time read on mount would
+  // go stale after login/logout. Re-read on our custom same-tab event, on the
+  // native cross-tab `storage` event, and whenever the route changes.
   useEffect(() => {
-    setSession(getSession("user"));
-  }, []);
+    const sync = () => setSession(getSession("user"));
+    sync();
+    window.addEventListener(SESSION_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(SESSION_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [pathname]);
+
+  function signOut() {
+    clearSession("user");
+    router.replace("/login");
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-navy-100 bg-white/90 backdrop-blur">
@@ -40,7 +60,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:block space-x-4">
+        <div className="hidden md:flex items-center gap-4">
           <Link
             href="/apply"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
@@ -48,27 +68,12 @@ export function Header() {
             Apply Now <FaArrowRightLong />
           </Link>
 
-          {/* <Link
-            href="/login"
-            className="inline-flex items-center justify-center gap-2 rounded-lg  px-5 py-2.5 text-sm font-semibold text-blue-600 shadow-lift transition border border-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-          >
-            Dashboard Login <FaArrowRightLong />
-          </Link> */}
-          {session ? (
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-lg  px-5 py-2.5 text-sm font-semibold text-blue-600 shadow-lift transition border border-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-            >
-              Dashboard <FaArrowRightLong />
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-lg  px-5 py-2.5 text-sm font-semibold text-blue-600 shadow-lift transition border border-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-            >
-              Dashboard Login <FaArrowRightLong />
-            </Link>
-          )}
+          <ProfileMenu
+            session={session}
+            onLogout={() => {
+              signOut();
+            }}
+          />
         </div>
 
         <button

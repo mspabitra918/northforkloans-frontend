@@ -192,7 +192,7 @@ export default function AdminApplicationDetailPage() {
         <main className="min-h-0 flex-1 overflow-y-auto p-6">
           <button
             type="button"
-            onClick={() => router.push("/admin")}
+            onClick={() => router.back()}
             className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-navy-500 transition hover:text-navy-800"
           >
             <FaArrowLeft className="h-3.5 w-3.5" />

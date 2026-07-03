@@ -109,6 +109,9 @@ function DashboardInner() {
   // The full list of the user's applications, shown when no `id` is selected.
   const [apps, setApps] = useState<ApplicationListItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  // True while we're redirecting an unauthenticated visitor to /login — keeps
+  // the loading UI up so the error state doesn't flash before navigation.
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Reveals the review-and-sign agreement document once the borrower clicks
   // "Review & e-sign" (status SIGN_LOAN_AGREEMENT).
@@ -164,9 +167,9 @@ function DashboardInner() {
       } else {
         const session = getSession("user");
         if (!session) {
-          setApp(null);
-          setApps(null);
-          setNoApplication(true);
+          // Not signed in and no application id to view — send them to login.
+          setRedirecting(true);
+          router.replace("/login");
           return;
         }
         const list = await api.getApplicationsByUser(session.phone);
@@ -194,14 +197,14 @@ function DashboardInner() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     load();
   }, [load]);
 
   // --- Empty / error states ---
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <Centered>
         <p className="text-navy-500">Loading your application…</p>
@@ -555,14 +558,14 @@ function ApplicationList({
             >
               Apply for a new loan <FaArrowRightLong className="h-3.5 w-3.5" />
             </Link>
-            <button
+            {/* <button
               type="button"
               onClick={onSignOut}
               className="inline-flex items-center gap-2 rounded-xl border border-navy-200 px-4 py-2.5 text-sm font-semibold text-navy-600 transition hover:bg-navy-50 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               <FaArrowRightFromBracket className="h-3.5 w-3.5" />
               Sign out
-            </button>
+            </button> */}
           </div>
         </div>
 

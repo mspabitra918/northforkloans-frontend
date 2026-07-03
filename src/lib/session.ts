@@ -17,9 +17,20 @@ const KEYS: Record<SessionScope, string> = {
   user: "oakhill_user_session",
 };
 
+// Fired whenever a session is saved or cleared so same-tab listeners (e.g. the
+// Header) can react instantly. The browser's native `storage` event only fires
+// in *other* tabs, so it can't cover the tab that made the change.
+export const SESSION_EVENT = "oakhill:session-change";
+
+function notifySessionChange(scope: SessionScope): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(SESSION_EVENT, { detail: { scope } }));
+}
+
 export function saveSession(scope: SessionScope, session: Session): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(KEYS[scope], JSON.stringify(session));
+  notifySessionChange(scope);
 }
 
 export function getSession(scope: SessionScope): Session | null {
@@ -36,4 +47,5 @@ export function getSession(scope: SessionScope): Session | null {
 export function clearSession(scope: SessionScope): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(KEYS[scope]);
+  notifySessionChange(scope);
 }

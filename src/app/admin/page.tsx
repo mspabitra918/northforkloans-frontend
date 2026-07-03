@@ -50,10 +50,21 @@ function AdminUnderwritingInner() {
   //                   YYYY-MM-DD -> that day
   const qParam = searchParams.get("q") ?? "";
   const statusParam = searchParams.get("status") ?? "ALL";
+  // const dateRaw = searchParams.get("date");
+  // const dateParam = dateRaw === null ? todayStr() : dateRaw; // "all" | YYYY-MM-DD
+  // const dateInputValue = dateParam === "all" ? "" : dateParam;
+  // const effectiveDate = dateParam === "all" ? undefined : dateParam;
+
   const dateRaw = searchParams.get("date");
-  const dateParam = dateRaw === null ? todayStr() : dateRaw; // "all" | YYYY-MM-DD
-  const dateInputValue = dateParam === "all" ? "" : dateParam;
-  const effectiveDate = dateParam === "all" ? undefined : dateParam;
+
+  // Show today's date in the input if no date is selected
+  const dateInputValue =
+    dateRaw === null ? todayStr() : dateRaw === "all" ? "" : dateRaw;
+
+  // Date filter: default to today, "all" means no date filter, otherwise the
+  // chosen YYYY-MM-DD.
+  const effectiveDate =
+    dateRaw === null ? todayStr() : dateRaw === "all" ? undefined : dateRaw;
 
   const [rows, setRows] = useState<AdminSearchRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -100,11 +111,17 @@ function AdminUnderwritingInner() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.searchApplications(token, {
-        q: qParam,
-        status: statusParam,
-        date: effectiveDate,
-      });
+      // A free-text query searches globally: when `q` is present we ignore the
+      // status/date filters. Otherwise we filter by status + date.
+      const params = qParam.trim()
+        ? { q: qParam }
+        : statusParam !== "ALL"
+          ? { status: statusParam }
+          : effectiveDate
+            ? { date: effectiveDate }
+            : {};
+
+      const data = await api.searchApplications(token, params);
       setRows(data);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
@@ -130,6 +147,8 @@ function AdminUnderwritingInner() {
   }
 
   function submitSearch() {
+    // Commit the text the user just typed (status/date are committed live by
+    // their own onChange handlers).
     setFilters({ q: searchInput.trim() || undefined });
   }
 
@@ -145,7 +164,7 @@ function AdminUnderwritingInner() {
   }
 
   const hasActiveFilters =
-    qParam !== "" || statusParam !== "ALL" || dateParam !== todayStr();
+    qParam !== "" || statusParam !== "ALL" || dateRaw !== null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-navy-50 text-navy-600">
@@ -208,9 +227,7 @@ function AdminUnderwritingInner() {
               <input
                 type="date"
                 value={dateInputValue}
-                onChange={(e) =>
-                  setFilters({ date: e.target.value || "all" })
-                }
+                onChange={(e) => setFilters({ date: e.target.value || "all" })}
                 className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-700 focus:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-200"
               />
 
@@ -297,7 +314,9 @@ function AdminUnderwritingInner() {
                             </div>
                           </td>
                           <td className="px-5 py-4">
-                            <div className="text-navy-700">{row.email || "—"}</div>
+                            <div className="text-navy-700">
+                              {row.email || "—"}
+                            </div>
                             <div className="mt-0.5 text-xs text-navy-500">
                               {row.phone || "—"}
                             </div>
