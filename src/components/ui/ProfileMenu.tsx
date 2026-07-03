@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPhoneNumber } from "@/src/app/dashboard/page";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
@@ -42,10 +43,12 @@ export default function ProfileMenu({ session, onLogout }: any) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 rounded-xl border bg-white shadow-lg">
-          <div className="border-b px-4 py-3">
+        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-white bg-white shadow-lg">
+          <div className="border-b border-b-gray-300 px-4 py-3">
             <p className="font-semibold">{session.email || "User"}</p>
-            <p className="text-sm text-gray-500">{session.phone}</p>
+            <p className="text-sm text-gray-500">
+              {formatPhoneNumber(session.phone)}
+            </p>
           </div>
 
           <Link

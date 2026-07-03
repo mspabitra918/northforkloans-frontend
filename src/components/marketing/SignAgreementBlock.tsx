@@ -236,13 +236,13 @@ export function SignAgreementBlock({
               </span>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-4 flex gap-4">
               <label htmlFor="sign-name" className="field-label">
                 Full legal name
               </label>
               <input
                 id="sign-name"
-                className="field-input"
+                className="field-input border border-gray-500 bg-white text-navy-900 placeholder:text-navy-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 px-3 rounded-md"
                 placeholder="e.g. John A. Doe"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}

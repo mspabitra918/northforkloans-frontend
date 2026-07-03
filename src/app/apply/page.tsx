@@ -302,8 +302,6 @@ export default function ApplyPage() {
     if (target === 2) {
       if (income <= 0)
         next.gross_monthly_income = "Enter your gross monthly income.";
-      else if (incomeTooLow)
-        next.gross_monthly_income = `A gross monthly income of at least ${formatUSD(LOAN.minMonthlyIncome)} is required to qualify.`;
       if (!form.housing_status)
         next.housing_status = "Select your housing status.";
       if (

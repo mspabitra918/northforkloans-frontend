@@ -354,18 +354,27 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
-  getApplication: (id: string) =>
-    request<ApplicationStatusView>(`/applications/${id}`),
+  // Requires the caller's session token: the backend enforces that a customer
+  // may only read an application they own (guards against IDOR via `?id=`).
+  getApplication: (id: string, token?: string) =>
+    request<ApplicationStatusView>(`/applications/${id}`, {
+      headers: authHeaders(token),
+    }),
 
   // Latest application for a user — drives the dashboard after OTP login, where
   // we have the user id from the session but no specific application id.
-  getApplicationByUser: (userId: string) =>
-    request<ApplicationStatusView>(`/applications/user/${userId}`),
+  getApplicationByUser: (userId: string, token?: string) =>
+    request<ApplicationStatusView>(`/applications/user/${userId}`, {
+      headers: authHeaders(token),
+    }),
 
   // Every application belonging to a user (most recent first) — drives the
   // dashboard list, where selecting a row opens that application by id.
-  getApplicationsByUser: (userId: string) =>
-    request<ApplicationListItem[]>(`/applications/user/applications/${userId}`),
+  getApplicationsByUser: (userId: string, token?: string) =>
+    request<ApplicationListItem[]>(
+      `/applications/user/applications/${userId}`,
+      { headers: authHeaders(token) },
+    ),
 
   esign: (id: string) =>
     request<SignAgreementResult>(`/applications/${id}/esign`, {

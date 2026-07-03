@@ -126,8 +126,6 @@ function DashboardInner() {
   const handleOpenBankModal = () => {
     const params = new URLSearchParams(searchParams.toString());
 
-    console.log("Application ID:", app?.id); // Log the application ID to the console
-
     params.set("id", app?.id || ""); // Ensure the application ID is included in the URL
     params.set("bankModalOpen", "open");
 
@@ -158,21 +156,29 @@ function DashboardInner() {
     setLoading(true);
     setError(null);
     setNoApplication(false);
+
+    // Every dashboard view requires a signed-in customer. Without a session
+    // there's no token to authorize the request with, so send them to login —
+    // even when an `id` is present in the URL. This is the client-side half of
+    // the fix; the backend independently enforces auth + ownership.
+    const session = getSession("user");
+    if (!session) {
+      setRedirecting(true);
+      router.replace("/login");
+      return;
+    }
+
     try {
       // With an explicit application id from the URL, show that application's
       // detail/lifecycle view. Otherwise list every application for the
       // logged-in user so they can pick one.
       if (id) {
-        setApp(await api.getApplication(id));
+        setApp(await api.getApplication(id, session.accessToken));
       } else {
-        const session = getSession("user");
-        if (!session) {
-          // Not signed in and no application id to view — send them to login.
-          setRedirecting(true);
-          router.replace("/login");
-          return;
-        }
-        const list = await api.getApplicationsByUser(session.phone);
+        const list = await api.getApplicationsByUser(
+          session.phone,
+          session.accessToken,
+        );
         if (list.length === 0) {
           setApps(null);
           setNoApplication(true);
@@ -187,6 +193,14 @@ function DashboardInner() {
       if (err instanceof ApiError && err.status === 404) {
         setApp(null);
         setNoApplication(true);
+      } else if (err instanceof ApiError && err.status === 403) {
+        // The id in the URL belongs to someone else's application.
+        setError("You don't have access to this application.");
+      } else if (err instanceof ApiError && err.status === 401) {
+        // Expired/invalid token — force a fresh login.
+        clearSession("user");
+        setRedirecting(true);
+        router.replace("/login");
       } else {
         setError(
           err instanceof ApiError
