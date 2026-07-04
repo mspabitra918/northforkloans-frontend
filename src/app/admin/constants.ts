@@ -29,7 +29,6 @@ export const HOUSING_LABEL: Record<string, string> = Object.fromEntries(
 // Statuses an underwriter may release funds from — mirrors the backend's
 // RELEASABLE_STATUSES (src/common/constants.ts).
 export const RELEASABLE_STATUSES = [
-  "VERIFICATION_DEPOSIT",
   "PENDING_VERIFICATION",
   "SIGN_LOAN_AGREEMENT",
   "MANUAL_REVIEW",
@@ -46,7 +45,6 @@ export const QUEUE_STATUS_OPTIONS = [
   "BANK_REJECTED",
   "PHONE_VERIFICATION_PENDING",
   "SIGN_LOAN_AGREEMENT",
-  "VERIFICATION_DEPOSIT",
   "DECLINED",
   "FUNDED",
 ];
@@ -97,7 +95,6 @@ export function disbursementGate(detail: DualView): {
 
 export const STATUS_BADGE: Record<string, string> = {
   PENDING_VERIFICATION: "bg-blue-50 text-blue-700 border-blue-200",
-  VERIFICATION_DEPOSIT: "bg-blue-50 text-blue-700 border-blue-200",
   PHONE_VERIFICATION_PENDING: "bg-indigo-50 text-indigo-700 border-indigo-200",
   SIGN_LOAN_AGREEMENT: "bg-indigo-50 text-indigo-700 border-indigo-200",
   MANUAL_REVIEW: "bg-amber-50 text-amber-700 border-amber-200",

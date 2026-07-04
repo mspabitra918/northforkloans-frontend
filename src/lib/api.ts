@@ -132,6 +132,10 @@ export interface ApplicationStatusView {
   statusReason: string | null;
   stageIndex: number;
   stageLabel: string;
+  // True once the borrower has e-signed. The status stays SIGN_LOAN_AGREEMENT
+  // afterward (signed, awaiting a manual fund release), so the portal uses this
+  // to mark the "Sign Agreement" stage complete.
+  esign: boolean;
   requestedAmount: number;
   loanTermMonths: number;
   monthlyPayment: number;
@@ -268,8 +272,10 @@ export interface DualView {
     loanTermMonths: number;
     monthlyPayment: number;
     calculatedDti: number;
+    esign: boolean;
   };
   selfReported: {
+    ipAddress: string | null;
     firstName: string;
     lastName: string;
     email: string;
@@ -390,8 +396,9 @@ export const api = {
     return res.agreement;
   },
 
-  // Record the borrower's e-signature (typed legal name) on the agreement. This
-  // advances the application to VERIFICATION_DEPOSIT and emails the executed PDF.
+  // Record the borrower's e-signature (typed legal name) on the agreement. The
+  // application stays "signed" awaiting a manual fund release and is emailed the
+  // executed PDF.
   signAgreement: (applicationId: string, fullName: string) =>
     request<SignAgreementResult>(`/applications/${applicationId}/esign`, {
       method: "POST",

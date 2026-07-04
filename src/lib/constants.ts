@@ -53,12 +53,6 @@ export const LIFECYCLE_STAGES = [
     label: "Sign Agreement",
     blurb: "Review and e-sign your loan agreement from this portal.",
   },
-  // {
-  //   key: "VERIFICATION_DEPOSIT",
-  //   label: "Verification Deposit",
-  //   blurb:
-  //     "A small micro-deposit confirms your routing details before funding.",
-  // },
   {
     key: "FUNDED",
     label: "Funded",
@@ -68,16 +62,6 @@ export const LIFECYCLE_STAGES = [
 
 // BANK_VERIFICATION_PENDING is a real backend status but is treated as part of
 // the first milestone from the user's point of view (it just means "go verify").
-// export const STATUS_TO_STAGE_INDEX: Record<string, number> = {
-//   APPLICATION_SUBMITTED: 0,
-//   BANK_VERIFICATION_PENDING: 0,
-//   PHONE_VERIFICATION_PENDING: 1,
-//   SIGN_LOAN_AGREEMENT: 2,
-//   VERIFICATION_DEPOSIT: 3,
-//   FUNDED: 4,
-//   DECLINED: -1,
-// };
-
 export const STATUS_TO_STAGE_INDEX: Record<string, number> = {
   APPLICATION_SUBMITTED: 0,
   PENDING: 0,
@@ -96,6 +80,7 @@ export const NAV_LINKS = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/rates-terms", label: "Rates & Terms" },
   { href: "/contact", label: "Contact" },
+  { href: "/blog", label: "Blog" },
 ] as const;
 
 export function formatUSD(amount: number): string {

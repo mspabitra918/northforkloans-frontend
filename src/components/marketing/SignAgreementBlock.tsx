@@ -86,8 +86,8 @@ export function SignAgreementBlock({
     try {
       const result = await api.signAgreement(applicationId, fullName.trim());
       setSigned({ at: result.signed_at, name: result.signed_name });
-      // Let the parent refresh so the lifecycle tracker advances to the next
-      // stage (VERIFICATION_DEPOSIT) now that the agreement is executed.
+      // Let the parent refresh so the portal reflects the signed agreement. The
+      // application now awaits a manual fund release by our team.
       onSigned?.();
     } catch (err) {
       setFormError(

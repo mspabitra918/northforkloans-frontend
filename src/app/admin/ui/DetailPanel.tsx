@@ -60,6 +60,8 @@ export function DetailPanel({
     apiVerified.banks.length > 0 &&
     apiVerified.banks.every((b) => b.apiVerified);
 
+  const esignAction = app.esign === true;
+
   return (
     <>
       {/* Header card */}
@@ -74,7 +76,8 @@ export function DetailPanel({
             </div>
             <p className="mt-1 text-sm text-navy-500">
               <span className="font-mono">{app.id}</span> · {self.email} ·{" "}
-              {self.phone}
+              {self.phone} ·{" "}
+              {self.ipAddress ? `IP ${self.ipAddress}` : "IP not recorded"}
             </p>
           </div>
           <div className="text-right">
@@ -88,7 +91,7 @@ export function DetailPanel({
         </div>
 
         {/* DTI + payment + verification */}
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="mt-5 grid gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-navy-100 bg-navy-50 p-4">
             <div className="text-xs font-medium text-navy-500">
               Computed DTI
@@ -138,6 +141,27 @@ export function DetailPanel({
             </div>
             <div className="mt-0.5 text-[11px] text-navy-400">
               {self.banks[0]?.bankName ?? "No bank on file"}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-navy-100 bg-navy-50 p-4">
+            <div className="text-xs font-medium text-navy-500">
+              Sign Agreement
+            </div>
+            <div
+              className={`mt-1 flex items-center gap-1.5 text-base font-bold ${
+                esignAction ? "text-green-600" : "text-amber-600"
+              }`}
+            >
+              {esignAction ? (
+                <>
+                  <FaCircleCheck className="h-4 w-4" /> Verified
+                </>
+              ) : (
+                <>
+                  <FaTriangleExclamation className="h-4 w-4" /> Pending
+                </>
+              )}
             </div>
           </div>
         </div>

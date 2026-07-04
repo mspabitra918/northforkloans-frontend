@@ -100,7 +100,7 @@ export function Header() {
         </button>
       </div>
 
-      {open && (
+      {/* {open && (
         <nav
           className="border-t border-navy-100 bg-white md:hidden"
           aria-label="Mobile"
@@ -120,6 +120,73 @@ export function Header() {
               onClick={() => setOpen(false)}
               href="/apply"
               className="inline-flex items-center justify-center gap-2 rounded-md  font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-blue-600 text-white shadow-lift hover:bg-blue-700 focus-visible:ring-star-400  ml-2 px-5 py-3 text-sm"
+            >
+              Apply Now <FaArrowRightLong />
+            </Link>
+            <ProfileMenu
+              session={session}
+              onLogout={() => {
+                signOut();
+              }}
+            />
+          </div>
+        </nav>
+      )} */}
+      {open && (
+        <nav
+          className="border-t border-navy-100 bg-white md:hidden"
+          aria-label="Mobile"
+        >
+          <div className="container-x py-4">
+            <div className="space-y-1">
+              {NAV_LINKS.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-4 py-3 text-sm font-medium text-navy-700 transition hover:bg-navy-50"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="my-4 h-px bg-navy-100" />
+
+            {session ? (
+              <div className="space-y-2">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    signOut();
+                  }}
+                  className="w-full rounded-xl border border-red-200 px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50"
+              >
+                Dashboard Login <FaArrowRightLong />
+              </Link>
+            )}
+
+            <Link
+              href="/apply"
+              onClick={() => setOpen(false)}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
               Apply Now <FaArrowRightLong />
             </Link>

@@ -19,7 +19,7 @@ export default function DtiExplainedPage() {
         highlight=" Debt-to-Income Ratio Means"
       />
       <section className="container-x pb-16">
-        <div className="max-w-3xl space-y-6">
+        <div className="max-w-3xl space-y-6 mt-7">
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"

@@ -66,11 +66,6 @@ const NEXT_ACTIONS: Record<
     body: "Your loan agreement is ready. Review the terms and e-sign from this portal to move toward funding.",
     cta: "Review & e-sign",
   },
-  VERIFICATION_DEPOSIT: {
-    heading: "Confirm your micro-deposit",
-    body: "We've sent a small micro-deposit to verify your routing details. Confirm the amount to unlock funding.",
-    cta: "Confirm deposit",
-  },
   FUNDED: {
     heading: "Your funds are on the way",
     body: "Your loan has been funded and sent via ACH — funds typically arrive within 24 hours.",
@@ -274,7 +269,17 @@ function DashboardInner() {
   }
 
   const isTerminalOfframp = app.stageIndex < 0; // DECLINED / BANK_REJECTED
-  const currentIndex = app.stageIndex;
+  // FUNDED is a terminal success state — the whole lifecycle is done, so every
+  // stage (including "Funded" itself) should render as Complete rather than
+  // leaving the final stage stuck showing "In progress".
+  const isFunded = app.status === "FUNDED";
+  // Once the borrower e-signs, the status stays SIGN_LOAN_AGREEMENT (signed,
+  // awaiting a manual fund release). Nudge the tracker half a step so "Sign
+  // Agreement" reads as Complete while "Funded" stays a pending step (not yet
+  // in progress) — funds haven't been released.
+  const esignAction =
+    app.esign === true && app.status === "SIGN_LOAN_AGREEMENT";
+  const currentIndex = esignAction ? app.stageIndex + 1 : app.stageIndex;
   const action = NEXT_ACTIONS[app.status];
 
   const summaryRows = [
@@ -359,18 +364,72 @@ function DashboardInner() {
               </div>
             ) : (
               action && (
+                // <div className="overflow-hidden rounded-3xl bg-linear-to-br from-navy-800 to-navy-950 p-8 shadow-lift sm:p-10">
+                //   <span className="inline-flex items-center gap-2 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300">
+                //     <FaRegClock className="h-3 w-3" />
+                //     Next step
+                //   </span>
+                //   <h2 className="mt-5 text-2xl font-bold tracking-tight text-white">
+                //     {esignAction
+                //       ? "Agreement signed — awaiting funding"
+                //       : action.heading}
+                //   </h2>
+                //   <p className="mt-3 max-w-xl text-base leading-relaxed text-navy-200">
+                //     {esignAction
+                //       ? "Thanks for signing. Our team will review your executed agreement and release your funds — typically within 24 hours via ACH. No further action is needed right now."
+                //       : action.body}
+                //   </p>
+                //   {esignAction ? (
+                //     <span className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-7 py-3.5 text-base font-semibold text-white">
+                //       <FaCheck className="h-4 w-4" /> Agreement signed
+                //     </span>
+                //   ) : app.status === "SIGN_LOAN_AGREEMENT" ? (
+                //     <button
+                //       onClick={() => setShowAgreement(true)}
+                //       disabled={showAgreement}
+                //       className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                //     >
+                //       {action.cta} <FaArrowRightLong />
+                //     </button>
+                //   ) : (
+                //     <span className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold text-white">
+                //       {action.cta} <FaArrowRightLong />
+                //     </span>
+                //   )}
+                // </div>
                 <div className="overflow-hidden rounded-3xl bg-linear-to-br from-navy-800 to-navy-950 p-8 shadow-lift sm:p-10">
                   <span className="inline-flex items-center gap-2 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300">
                     <FaRegClock className="h-3 w-3" />
-                    Next step
+                    {isFunded ? "Completed" : "Next step"}
                   </span>
+
                   <h2 className="mt-5 text-2xl font-bold tracking-tight text-white">
-                    {action.heading}
+                    {isFunded
+                      ? "Funds have been disbursed"
+                      : esignAction
+                        ? "Agreement signed — awaiting funding"
+                        : action.heading}
                   </h2>
+
                   <p className="mt-3 max-w-xl text-base leading-relaxed text-navy-200">
-                    {action.body}
+                    {isFunded
+                      ? "Congratulations! Your loan has been successfully funded and the money has been sent to your designated bank account. Please allow your bank time to process the deposit."
+                      : esignAction
+                        ? "Thanks for signing. Our team will review your executed agreement and release your funds—typically within 24 hours via ACH. No further action is needed right now."
+                        : action.body}
                   </p>
-                  {app.status === "SIGN_LOAN_AGREEMENT" ? (
+
+                  {isFunded ? (
+                    <span className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-7 py-3.5 text-base font-semibold text-white">
+                      <FaCheck className="h-4 w-4" />
+                      Funds Disbursed
+                    </span>
+                  ) : esignAction ? (
+                    <span className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-7 py-3.5 text-base font-semibold text-white">
+                      <FaCheck className="h-4 w-4" />
+                      Agreement Signed
+                    </span>
+                  ) : app.status === "SIGN_LOAN_AGREEMENT" ? (
                     <button
                       onClick={() => setShowAgreement(true)}
                       disabled={showAgreement}
@@ -405,8 +464,8 @@ function DashboardInner() {
               </h2>
               <ol className="mt-8">
                 {LIFECYCLE_STAGES.map((stage, i) => {
-                  const isComplete = i < currentIndex;
-                  const isCurrent = i === currentIndex;
+                  const isComplete = i < currentIndex || isFunded;
+                  const isCurrent = !isFunded && i === currentIndex;
                   const isLast = i === LIFECYCLE_STAGES.length - 1;
                   return (
                     <li
@@ -568,7 +627,7 @@ function ApplicationList({
           <div className="flex shrink-0 items-center gap-3">
             <Link
               href="/apply"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className=" hidden md:inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               Apply for a new loan <FaArrowRightLong className="h-3.5 w-3.5" />
             </Link>
