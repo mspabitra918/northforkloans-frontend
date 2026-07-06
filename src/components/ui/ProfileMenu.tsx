@@ -22,6 +22,8 @@ export default function ProfileMenu({ session, onLogout }: any) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const initials = session?.email?.split("@")[0]?.slice(0, 2)?.toUpperCase();
+
   if (!session) {
     return (
       <Link
@@ -37,9 +39,9 @@ export default function ProfileMenu({ session, onLogout }: any) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
       >
-        <FaUserCircle className="h-10 w-10 text-blue-600" />
+        <FaUserCircle className="h-10 w-10" />
       </button>
 
       {open && (
