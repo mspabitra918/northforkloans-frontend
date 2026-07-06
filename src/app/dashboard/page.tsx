@@ -147,10 +147,7 @@ function DashboardInner() {
 
   useEffect(() => {
     const isOpen = searchParams.get("bankModalOpen") === "open";
-
-    if (isOpen) {
-      setBankModalOpen(true);
-    }
+    setBankModalOpen(isOpen);
   }, [searchParams]);
 
   const load = useCallback(async () => {
