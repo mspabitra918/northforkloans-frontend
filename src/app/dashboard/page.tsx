@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -113,42 +113,41 @@ function DashboardInner() {
   const [showAgreement, setShowAgreement] = useState(false);
   // No application to show: neither an `id` in the URL nor a signed-in user.
   const [noApplication, setNoApplication] = useState(false);
-  // Controls the "Update bank details" popup shown after BANK_REJECTED.
-  const [bankModalOpen, setBankModalOpen] = useState(false);
+  // Controls the "Update bank details" popup shown after BANK_REJECTED. The
+  // "update bank" email link deep-links in with ?bankModalOpen=open, so seed
+  // the initial open state from the URL once (see the cleanup effect below).
+  const [bankModalOpen, setBankModalOpen] = useState(
+    () => searchParams.get("bankModalOpen") === "open",
+  );
 
   const pathname = usePathname();
 
-  const handleOpenBankModal = () => {
-    const params = new URLSearchParams(searchParams.toString());
+  const handleOpenBankModal = () => setBankModalOpen(true);
 
-    params.set("id", app?.id || "");
-    params.set("bankModalOpen", "open");
+  const handleCloseBankModal = () => setBankModalOpen(false);
 
-    router.replace(`${pathname}?${params.toString()}`, {
-      scroll: false,
-    });
-
-    setBankModalOpen(true);
-  };
-
-  const handleCloseBankModal = () => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    params.delete("bankModalOpen");
-
-    const url = params.toString()
-      ? `${pathname}?${params.toString()}`
-      : pathname;
-
-    router.replace(url, { scroll: false });
-
-    setBankModalOpen(false);
-  };
-
+  // The modal open state is seeded from ?bankModalOpen=open above (the email
+  // deep-link). Treat that flag as one-shot: once consumed, strip it from the
+  // address bar via history.replaceState (not router.replace) so the URL is
+  // cleaned without a Next navigation. Keeping the modal state independent of
+  // the URL means closing it sticks and links like "All applications" aren't
+  // blocked or re-opened by a lingering param.
+  const bankDeepLinkConsumed = useRef(false);
   useEffect(() => {
-    const isOpen = searchParams.get("bankModalOpen") === "open";
-    setBankModalOpen(isOpen);
-  }, [searchParams]);
+    if (bankDeepLinkConsumed.current) return;
+    if (searchParams.get("bankModalOpen") === "open") {
+      bankDeepLinkConsumed.current = true;
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("bankModalOpen");
+      const query = params.toString();
+      window.history.replaceState(
+        null,
+        "",
+        query ? `${pathname}?${query}` : pathname,
+      );
+    }
+  }, [searchParams, pathname]);
 
   const load = useCallback(async () => {
     setLoading(true);
