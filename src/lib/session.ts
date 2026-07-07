@@ -13,14 +13,14 @@ export type Session = AuthResult;
 export type SessionScope = "admin" | "user";
 
 const KEYS: Record<SessionScope, string> = {
-  admin: "oakhill_admin_session",
-  user: "oakhill_user_session",
+  admin: "northforkloans_admin_session",
+  user: "northforkloans_user_session",
 };
 
 // Fired whenever a session is saved or cleared so same-tab listeners (e.g. the
 // Header) can react instantly. The browser's native `storage` event only fires
 // in *other* tabs, so it can't cover the tab that made the change.
-export const SESSION_EVENT = "oakhill:session-change";
+export const SESSION_EVENT = "northforkloans:session-change";
 
 function notifySessionChange(scope: SessionScope): void {
   if (typeof window === "undefined") return;

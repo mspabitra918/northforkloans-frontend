@@ -3,9 +3,9 @@ import { PageHeader } from "@/src/components/ui/PageHeader";
 import { BRAND } from "@/src/lib/constants";
 
 export const metadata: import("next").Metadata = {
-  title: "Privacy Policy | Oakhill Loans",
+  title: "Privacy Policy | Northfork Loans",
   description:
-    "How Oakhill Loans collects, uses, protects, and shares your personal information, including your GLBA and CCPA privacy rights.",
+    "How Northfork Loans collects, uses, protects, and shares your personal information, including your GLBA and CCPA privacy rights.",
   alternates: { canonical: "/privacy-policy" },
 };
 
@@ -151,7 +151,7 @@ export default function PrivacyPolicyPage() {
             Contact us
           </h2>
           <p className="text-navy-700 leading-relaxed">
-            Questions? Contact support@oakhillloans.com or visit our{" "}
+            Questions? Contact support@northforkloans.com or visit our{" "}
             <Link
               href="/contact"
               className="font-semibold text-blue-600 hover:text-blue-700"

@@ -4,7 +4,7 @@
 export const metadata: import("next").Metadata = {
   title: "Contact Us",
   description:
-    "Reach Oakhill Loans by phone, email, or mail. Serving all 50 states.",
+    "Reach Northfork Loans by phone, email, or mail. Serving all 50 states.",
   alternates: { canonical: "/contact" },
 };
 

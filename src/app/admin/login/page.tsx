@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
                 <FaUserShield className="h-4 w-4" />
               </span>
-              Oakhill<span className="text-blue-400">Admin</span>
+              Northfork<span className="text-blue-400">Admin</span>
             </span>
             <h1 className="mt-6 text-2xl font-bold tracking-tight text-white">
               Underwriting portal
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@oakhill.example"
+                  placeholder="you@northfork.example"
                   className="mt-2 block w-full rounded-xl border border-navy-200 bg-white px-4 py-3 text-base text-navy-900 placeholder:text-navy-400 transition focus:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                 />
               </div>

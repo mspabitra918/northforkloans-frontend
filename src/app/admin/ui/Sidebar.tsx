@@ -8,7 +8,7 @@ export function Sidebar() {
           <FaUserShield className="h-4 w-4" />
         </span>
         <span className="text-lg font-bold tracking-tight text-white">
-          Oakhill
+          Northfork
         </span>
         <span className="text-xs font-medium text-navy-300">Admin</span>
       </div>

@@ -4,7 +4,7 @@ import { PageHeader } from "@/src/components/ui/PageHeader";
 import { CtaBand } from "@/src/components/ui/CtaBand";
 
 export const metadata: import("next").Metadata = {
-  title: "Rebuilding Credit: A Practical Step-by-Step Guide | Oakhill Loans",
+  title: "Rebuilding Credit: A Practical Step-by-Step Guide | Northfork Loans",
   description:
     "An actionable, step-by-step guide to rebuilding your credit, from checking your reports to lowering utilization and building consistent on-time payments.",
   alternates: { canonical: "/blog/rebuilding-credit" },
@@ -100,11 +100,11 @@ export default function RebuildingCreditPage() {
           </p>
 
           <h2 className="text-2xl font-bold text-navy-900 mt-10 mb-3">
-            Where Oakhill fits in
+            Where Northfork fits in
           </h2>
           <p className="text-navy-700 leading-relaxed">
             Rebuilding credit does not mean you have to wait for funding when
-            you need it. At Oakhill Loans, all credit tiers are welcome to
+            you need it. At Northfork Loans, all credit tiers are welcome to
             apply. We use internal decisioning that looks at your full financial
             picture, not just a single score, and checking your rate never
             affects your credit. A well-managed loan can even become another

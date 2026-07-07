@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Your Dashboard",
   description:
-    "Track your Oakhill Loans application status, next steps, and loan summary from your customer portal.",
+    "Track your Northfork Loans application status, next steps, and loan summary from your customer portal.",
   alternates: { canonical: "/dashboard" },
 };
 

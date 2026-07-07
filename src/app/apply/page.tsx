@@ -1362,7 +1362,7 @@ export default function ApplyPage() {
                             Privacy Policy
                           </Link>
                           . By checking this box, I consent to be contacted by{" "}
-                          <strong>Oakhill Loans</strong> via phone, SMS/text
+                          <strong>Northfork Loans</strong> via phone, SMS/text
                           message, and email at the contact information I have
                           provided, including through the use of autodialed
                           calls, prerecorded or artificial voice messages, and

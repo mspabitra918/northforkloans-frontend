@@ -29,7 +29,7 @@ export default function BenefitsSection() {
           </h2>
 
           <p className="mt-4 text-xl text-slate-500">
-            Why choose Oakhill Loans for your personal loan needs
+            Why choose Northfork Loans for your personal loan needs
           </p>
         </div>
 

@@ -3,9 +3,9 @@ import { PageHeader } from "@/src/components/ui/PageHeader";
 import { BRAND, LOAN, formatUSD } from "@/src/lib/constants";
 
 export const metadata: import("next").Metadata = {
-  title: "Terms of Service | Oakhill Loans",
+  title: "Terms of Service | Northfork Loans",
   description:
-    "The terms and conditions that govern your use of Oakhill Loans, including eligibility, loan offer details, disclaimers, and governing law.",
+    "The terms and conditions that govern your use of Northfork Loans, including eligibility, loan offer details, disclaimers, and governing law.",
   alternates: { canonical: "/terms" },
 };
 
@@ -160,7 +160,7 @@ export default function TermsPage() {
             Contact us
           </h2>
           <p className="text-navy-700 leading-relaxed">
-            Questions? Contact support@oakhillloans.com or visit our{" "}
+            Questions? Contact support@northforkloans.com or visit our{" "}
             <Link
               href="/contact"
               className="font-semibold text-blue-600 hover:text-blue-700"

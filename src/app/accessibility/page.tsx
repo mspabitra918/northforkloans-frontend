@@ -3,9 +3,9 @@ import { PageHeader } from "@/src/components/ui/PageHeader";
 import { BRAND, telHref } from "@/src/lib/constants";
 
 export const metadata: import("next").Metadata = {
-  title: "Accessibility Statement | Oakhill Loans",
+  title: "Accessibility Statement | Northfork Loans",
   description:
-    "Oakhill Loans is committed to making its website accessible to everyone, targeting WCAG 2.1 AA conformance.",
+    "Northfork Loans is committed to making its website accessible to everyone, targeting WCAG 2.1 AA conformance.",
   alternates: { canonical: "/accessibility" },
 };
 
@@ -81,7 +81,7 @@ export default function AccessibilityPage() {
             Contact us
           </h2>
           <p className="text-navy-700 leading-relaxed">
-            Questions? Contact support@oakhillloans.com or visit our{" "}
+            Questions? Contact support@northforkloans.com or visit our{" "}
             <Link
               href="/contact"
               className="font-semibold text-blue-600 hover:text-blue-700"

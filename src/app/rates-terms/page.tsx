@@ -17,7 +17,7 @@ import { LOAN, FAQS, formatUSD } from "@/src/lib/constants";
 import Link from "next/link";
 
 export const metadata: import("next").Metadata = {
-  title: `Rates & Terms — One Fixed ${LOAN.apr}% APR | Oakhill Loans`,
+  title: `Rates & Terms — One Fixed ${LOAN.apr}% APR | Northfork Loans`,
   description: `Every approved applicant gets the same fixed ${LOAN.apr}% APR. Loans from ${formatUSD(
     LOAN.minAmount,
   )} to ${formatUSD(LOAN.maxAmount)}, terms of ${LOAN.terms.join(
@@ -267,7 +267,7 @@ export default function RatesTermsPage() {
           term. All loans are subject to approval and successful bank
           verification. Funding timelines are goals, not guarantees, and begin
           after you e-sign your agreement and your bank account is verified.
-          Oakhill Loans handles your personal and financial information in
+          Northfork Loans handles your personal and financial information in
           accordance with the Gramm-Leach-Bliley Act (GLBA) and the California
           Consumer Privacy Act (CCPA).
         </p>

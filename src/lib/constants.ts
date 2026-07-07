@@ -3,13 +3,13 @@
 // never drift apart.
 
 export const BRAND = {
-  name: "Oakhill Loans",
-  legalName: "Oakhill Loans, LLC",
-  domain: "oakhillloans.com",
+  name: "Northfork Loans",
+  legalName: "Northfork Loans, LLC",
+  domain: "northforkloans.com",
   tagline: "Modern personal loans, funded in 24 hours.",
   phone: "888-392-2321",
   phoneAlt: "747-200-5220",
-  email: "support@oakhillloans.com",
+  email: "support@northforkloans.com",
   address: {
     street: "1968 South Coast Highway #2900",
     city: "Laguna Beach",
@@ -344,7 +344,7 @@ export const DECISION_COPY: Record<
   },
   DECLINED: {
     heading: "We're unable to approve this application",
-    body: "Based on the details provided we're unable to move forward at this time. Thank you for considering Oakhill Loans.",
+    body: "Based on the details provided we're unable to move forward at this time. Thank you for considering Northfork Loans.",
     tone: "bad",
   },
 };

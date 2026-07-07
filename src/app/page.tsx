@@ -259,7 +259,7 @@ export default function Home() {
               One loan, many reasons
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
-              What people use Oakhill for
+              What people use Northfork for
             </h2>
             <p className="mt-4 text-base leading-relaxed text-navy-600">
               Whatever you need it for, the terms stay the same — a fixed{" "}

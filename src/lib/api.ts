@@ -1,4 +1,4 @@
-// Typed client for the Oakhill NestJS backend. All calls go through `request`,
+// Typed client for the Northfork Loans NestJS backend. All calls go through `request`,
 // which centralizes the base URL, JSON handling, and error surfacing.
 
 const BASE_URL =

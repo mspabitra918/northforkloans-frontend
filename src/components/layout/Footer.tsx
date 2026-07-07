@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container-x grid gap-10 py-14 sm:grid-cols-2 md:grid-cols-5">
         <div className="md:col-span-2">
           <div className="text-lg font-bold text-black">
-            Oakhill
+            Northfork
             <span className="text-blue-700"> Loans</span>
           </div>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-black">

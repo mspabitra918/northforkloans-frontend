@@ -13,8 +13,8 @@ import {
 } from "@/src/lib/constants";
 
 export const metadata: import("next").Metadata = {
-  title: "How It Works — Get Funded in 3 Simple Steps | Oakhill Loans",
-  description: `Apply in minutes, verify your details, and get funded within ${LOAN.fundingHours} hours. See exactly what you'll need and how an Oakhill personal loan works, step by step.`,
+  title: "How It Works — Get Funded in 3 Simple Steps | Northfork Loans",
+  description: `Apply in minutes, verify your details, and get funded within ${LOAN.fundingHours} hours. See exactly what you'll need and how an Northfork personal loan works, step by step.`,
   alternates: { canonical: "/how-it-works" },
 };
 

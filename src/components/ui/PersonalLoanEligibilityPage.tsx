@@ -48,7 +48,7 @@ export default function PersonalLoanEligibilityPage() {
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
           <div className="max-w-3xl">
             <span className="rounded-full bg-white/10 px-4 py-1 text-sm font-medium">
-              Oakhill Loans
+               Northfork Loans
             </span>
 
             <h1 className="mt-6 text-4xl font-bold leading-tight md:text-5xl">
