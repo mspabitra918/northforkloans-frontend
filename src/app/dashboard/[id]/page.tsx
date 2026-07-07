@@ -383,6 +383,7 @@ function DashboardDetailInner() {
                 applicationId={app.id}
                 amount={app.requestedAmount}
                 termMonths={app.loanTermMonths}
+                borrowerName={app.borrowerName}
                 onSigned={load}
               />
             )}

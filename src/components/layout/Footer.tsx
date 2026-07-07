@@ -94,7 +94,7 @@ export function Footer() {
             © {BRAND.address.country === "US" ? new Date().getFullYear() : ""}{" "}
             {BRAND.legalName}. All rights reserved.
           </p>
-          <p className="mt-2 max-w-3xl">
+          <p className="mt-2 max-w-full">
             Representative example: a {formatUSD(5000)} loan at a fixed{" "}
             {LOAN.apr}% APR over 24 months. All loans are subject to approval.
             {BRAND.name} is committed to GLBA and CCPA privacy compliance. APR

@@ -136,6 +136,7 @@ export interface ApplicationStatusView {
   // afterward (signed, awaiting a manual fund release), so the portal uses this
   // to mark the "Sign Agreement" stage complete.
   esign: boolean;
+  borrowerName: string;
   requestedAmount: number;
   loanTermMonths: number;
   monthlyPayment: number;
