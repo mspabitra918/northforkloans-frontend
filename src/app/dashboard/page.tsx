@@ -5,11 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaArrowRightLong, FaTriangleExclamation } from "react-icons/fa6";
 import { formatUSD } from "@/src/lib/constants";
-import {
-  api,
-  ApiError,
-  type ApplicationListItem,
-} from "@/src/lib/api";
+import { api, ApiError, type ApplicationListItem } from "@/src/lib/api";
 import { clearSession, getSession } from "@/src/lib/session";
 
 export const formatPhoneNumber = (phone: string) => {

@@ -4,7 +4,7 @@ const features = [
   {
     icon: <FaPercentage className="text-5xl text-amber-500" />,
     title: "Low Interest Rates",
-    description: "Starting from 10% p.a.",
+    description: "Flat 10% APR for all applicants.",
   },
   {
     icon: <FaWifi className="text-5xl text-purple-500" />,

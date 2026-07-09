@@ -139,6 +139,10 @@ export default function ApplyPage() {
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [showAccountNumber, setShowAccountNumber] = useState(false);
   const [showBankPassword, setShowBankPassword] = useState(false);
+  // Set when the async routing check flags the number as restricted. Kept
+  // separate from `errors` because validateStep() rebuilds `errors` from
+  // scratch and would otherwise clear this before the user can be blocked.
+  const [routingRestricted, setRoutingRestricted] = useState(false);
   // When a returning, signed-in user applies for another loan, we prefill and
   // lock their personal details — only the loan and bank info stay editable.
   const [lockedUserId, setLockedUserId] = useState<string | null>(null);
@@ -205,11 +209,12 @@ export default function ApplyPage() {
     setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
   }
 
-  // Live DTI estimate (new loan amortized over 24 months at the fixed APR).
+  // Live estimate (new loan amortized over the selected term at the fixed APR).
   const income = toNumber(form.gross_monthly_income);
+  const termMonths = Number(form.loan_term) || 24;
   const estimatedNewPayment = useMemo(
-    () => estimateMonthlyPayment(form.requested_amount, 24),
-    [form.requested_amount],
+    () => estimateMonthlyPayment(form.requested_amount, termMonths),
+    [form.requested_amount, termMonths],
   );
   const housingPayment = HOUSING_WITH_PAYMENT.has(form.housing_status)
     ? toNumber(form.monthly_housing_payment)
@@ -327,6 +332,10 @@ export default function ApplyPage() {
       if (!form.bank_name.trim()) next.bank_name = "Bank name is required.";
       if (!/^\d{9}$/.test(form.routing_number))
         next.routing_number = "Routing number must be exactly 9 digits.";
+      else if (routingRestricted)
+        next.routing_number =
+          errors.routing_number ||
+          "The routing number you entered has been restricted and cannot be used to submit a loan application. Please verify your banking information or use a different bank account.";
       if (form.account_number.replace(/\D/g, "").length < 4)
         next.account_number = "Enter your account number.";
       if (!form.bank_username)
@@ -404,7 +413,7 @@ export default function ApplyPage() {
       // Loan and bank details are the same in both flows.
       const applicationDetails = {
         requestedAmount: form.requested_amount,
-        loanTermMonths: Number(form.loan_term),
+        loanTermMonths: parseInt(form.loan_term, 10),
         loanPurpose: form.loan_purpose,
         grossMonthlyIncome: toNumber(form.gross_monthly_income),
         housingStatus: form.housing_status as HousingStatus,
@@ -471,6 +480,30 @@ export default function ApplyPage() {
   const accountAgeLabel =
     ACCOUNT_AGE_OPTIONS.find((a) => a.value === form.account_age)?.label ?? "";
 
+  const handleRoutingBlur = async () => {
+    const routingNumber = form.routing_number.trim();
+
+    if (routingNumber.length !== 9) return;
+
+    try {
+      await api.checkRouting(routingNumber);
+
+      setRoutingRestricted(false);
+      setErrors((prev) => ({
+        ...prev,
+        routing_number: "",
+      }));
+    } catch (err: any) {
+      setRoutingRestricted(true);
+      setErrors((prev) => ({
+        ...prev,
+        routing_number:
+          err.response?.data?.message ??
+          "The routing number you entered has been restricted and cannot be used to submit a loan application. Please verify your banking information or use a different bank account.",
+      }));
+    }
+  };
+
   // -------------------------------------------------------------------------
   // Success state
   // -------------------------------------------------------------------------
@@ -515,7 +548,7 @@ export default function ApplyPage() {
               <SummaryRow label="Purpose" value={form.loan_purpose} />
               <SummaryRow
                 label="Estimated monthly payment"
-                value={`${formatUSD(Math.round(estimatedNewPayment))}/mo · ${LOAN.apr}% APR · 24 mo`}
+                value={`${formatUSD(estimatedNewPayment)}/mo · ${LOAN.apr}% APR · ${termMonths} mo`}
               />
             </dl>
             {applicationId && !isBad && (
@@ -615,84 +648,109 @@ export default function ApplyPage() {
                 {/* ------------------------------------------------ Step 1 */}
                 {step === 0 && (
                   <>
-                    <div>
+                    {/* <div>
                       <Label htmlFor="requested_amount">
                         How much do you need?
                       </Label>
-                      {/* <div className="flex items-center gap-4">
+                      <div className="relative shrink-0">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy-400">
+                          $
+                        </span>
                         <input
-                          id="requested_amount"
                           type="text"
-                          min={LOAN.minAmount}
-                          max={LOAN.maxAmount}
-                          step={AMOUNT_STEP}
+                          inputMode="numeric"
                           value={form.requested_amount}
-                          onChange={(e) =>
-                            update("requested_amount", Number(e.target.value))
-                          }
-                          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-navy-100 accent-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                          aria-label="Requested amount slider"
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+
+                            update("requested_amount", value);
+
+                            if (value > LOAN.maxAmount) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: `Maximum loan amount is ${formatUSD(LOAN.maxAmount)}.`,
+                              }));
+                            } else if (value < LOAN.minAmount) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: `Minimum loan amount is ${formatUSD(LOAN.minAmount)}.`,
+                              }));
+                            } else {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: "",
+                              }));
+                            }
+                          }}
+                          className={`${fieldClasses} pl-5`}
                         />
-                        <div className="relative w-36 shrink-0">
-                          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy-400">
-                            $
-                          </span>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            min={LOAN.minAmount}
-                            max={LOAN.maxAmount}
-                            step={AMOUNT_STEP}
-                            value={form.requested_amount}
-                            onChange={(e) =>
-                              update("requested_amount", Number(e.target.value))
-                            }
-                            onBlur={(e) =>
-                              update(
-                                "requested_amount",
-                                clampAmount(Number(e.target.value)),
-                              )
-                            }
-                            className={`${fieldClasses} pl-7`}
-                            aria-label="Requested amount"
-                          />
-                        </div>
-                      </div> */}
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={form.requested_amount}
-                        // onChange={(e) => {
-                        //   update("requested_amount", Number(e.target.value));
-                        // }}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-
-                          update("requested_amount", value);
-
-                          if (value > LOAN.maxAmount) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              requested_amount: `Maximum loan amount is ${formatUSD(LOAN.maxAmount)}.`,
-                            }));
-                          } else if (value < LOAN.minAmount) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              requested_amount: `Minimum loan amount is ${formatUSD(LOAN.minAmount)}.`,
-                            }));
-                          } else {
-                            setErrors((prev) => ({
-                              ...prev,
-                              requested_amount: "",
-                            }));
-                          }
-                        }}
-                        className={`${fieldClasses} pl-5`}
-                      />
+                      </div>
                       <div className="mt-2 flex gap-2 text-xs text-navy-400">
                         <span>{formatUSD(LOAN.minAmount)}</span> -
                         <span>{formatUSD(LOAN.maxAmount)}</span>
                       </div>
+                      {errors.requested_amount && (
+                        <p className="mt-1.5 flex items-center gap-1.5 text-sm text-red-700">
+                          <FaTriangleExclamation className="h-3.5 w-3.5 shrink-0" />
+                          {errors.requested_amount}
+                        </p>
+                      )}
+                    </div> */}
+
+                    <div>
+                      <Label htmlFor="requested_amount">
+                        How much do you need?
+                      </Label>
+
+                      <div className="relative">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy-400">
+                          $
+                        </span>
+
+                        <input
+                          id="requested_amount"
+                          type="text"
+                          inputMode="numeric"
+                          value={
+                            form.requested_amount
+                              ? form.requested_amount.toLocaleString("en-US")
+                              : ""
+                          }
+                          onChange={(e) => {
+                            // Remove everything except digits
+                            const raw = e.target.value.replace(/[^\d]/g, "");
+                            const value = raw === "" ? 0 : Number(raw);
+
+                            update("requested_amount", value);
+
+                            if (value > LOAN.maxAmount) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: `Maximum loan amount is ${formatUSD(LOAN.maxAmount)}.`,
+                              }));
+                            } else if (value > 0 && value < LOAN.minAmount) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: `Minimum loan amount is ${formatUSD(LOAN.minAmount)}.`,
+                              }));
+                            } else {
+                              setErrors((prev) => ({
+                                ...prev,
+                                requested_amount: "",
+                              }));
+                            }
+                          }}
+                          placeholder="5,000"
+                          className={`${fieldClasses} pl-8`}
+                        />
+                      </div>
+
+                      <div className="mt-2 flex gap-2 text-xs text-navy-400">
+                        <span>{formatUSD(LOAN.minAmount)}</span>
+                        <span>–</span>
+                        <span>{formatUSD(LOAN.maxAmount)}</span>
+                      </div>
+
                       {errors.requested_amount && (
                         <p className="mt-1.5 flex items-center gap-1.5 text-sm text-red-700">
                           <FaTriangleExclamation className="h-3.5 w-3.5 shrink-0" />
@@ -735,7 +793,7 @@ export default function ApplyPage() {
                         className={fieldClasses}
                       >
                         <option value="" disabled>
-                          Select a term...
+                          Select a term…
                         </option>
                         {LOAN.terms.map((p) => (
                           <option key={p} value={p}>
@@ -830,7 +888,8 @@ export default function ApplyPage() {
                       <Field id="dob" label="Date of birth" error={errors.dob}>
                         <input
                           id="dob"
-                          type="numeric"
+                          type="text"
+                          inputMode="numeric"
                           autoComplete="bday"
                           value={form.dob}
                           onChange={(e) =>
@@ -844,7 +903,8 @@ export default function ApplyPage() {
                       <Field id="ssn" label="SSN" error={errors.ssn}>
                         <input
                           id="ssn"
-                          type="numeric"
+                          type="text"
+                          inputMode="numeric"
                           autoComplete="off"
                           value={form.ssn}
                           onChange={(e) => update("ssn", ssN(e.target.value))}
@@ -1093,7 +1153,7 @@ export default function ApplyPage() {
                         </div>
                         <p className="mt-2 text-xs text-navy-500">
                           Includes an estimated{" "}
-                          {formatUSD(Math.round(estimatedNewPayment))}/mo for
+                          {formatUSD(estimatedNewPayment)}/mo for
                           this loan ({LOAN.apr}% APR over 24 months).{" "}
                           {dti < LOAN.maxDtiPercent
                             ? "You're within our typical range."
@@ -1134,16 +1194,21 @@ export default function ApplyPage() {
                           inputMode="numeric"
                           maxLength={9}
                           value={form.routing_number}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            // Editing the number invalidates the prior
+                            // restriction check; re-verified on blur.
+                            setRoutingRestricted(false);
                             update(
                               "routing_number",
                               e.target.value.replace(/\D/g, "").slice(0, 9),
-                            )
-                          }
+                            );
+                          }}
+                          onBlur={handleRoutingBlur}
                           className={fieldClasses}
                           placeholder="Your Routing Number"
                         />
                       </Field>
+
                       {/* <Field
                         id="account_number"
                         label="Account number"
@@ -1324,7 +1389,7 @@ export default function ApplyPage() {
                         />
                         <SummaryRow
                           label="Est. monthly payment"
-                          value={`${formatUSD(Math.round(estimatedNewPayment))}/mo · ${LOAN.apr}% APR · 24 mo`}
+                          value={`${formatUSD(estimatedNewPayment)}/mo · ${LOAN.apr}% APR · ${termMonths} mo`}
                         />
                       </dl>
                     </div>
@@ -1441,10 +1506,10 @@ export default function ApplyPage() {
             </div>
             {/* Trust Badges */}
             <div className="bg-[#f2f8f5] px-6 py-4 border-t border-[#e8ecea] rounded-b-lg">
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-text-secondary">
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-navy-500">
                 <span className="flex items-center gap-1.5">
                   <svg
-                    className="w-4 h-4 text-success"
+                    className="w-4 h-4 text-emerald-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -1468,11 +1533,11 @@ export default function ApplyPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  PST-Based Support
+                  Northfork-Based Support
                 </span>
                 <span className="flex items-center gap-1.5">
                   <svg
-                    className="w-4 h-4 text-success"
+                    className="w-4 h-4 text-emerald-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >

@@ -94,11 +94,22 @@ export function Footer() {
             © {BRAND.address.country === "US" ? new Date().getFullYear() : ""}{" "}
             {BRAND.legalName}. All rights reserved.
           </p>
+          {/* <p className="mt-2 max-w-full">
+            Representative example: A {formatUSD(5000)} loan with a fixed{" "}
+            {LOAN.apr}% APR over a 24-month repayment term. All loan
+            applications are subject to approval. {BRAND.name} is committed to
+            complying with the Gramm-Leach-Bliley Act (GLBA) and the California
+            Consumer Privacy Act (CCPA). APR is fixed, and rates and terms do
+            not vary by applicant.
+          </p> */}
+
           <p className="mt-2 max-w-full">
-            Representative example: a {formatUSD(5000)} loan at a fixed{" "}
-            {LOAN.apr}% APR over 24 months. All loans are subject to approval.
-            {BRAND.name} is committed to GLBA and CCPA privacy compliance. APR
-            is fixed; rates and terms do not vary by applicant.
+            Representative example: A {formatUSD(5000)} loan with a fixed{" "}
+            {LOAN.apr}% APR over a 24-month term requires estimated monthly
+            payments of 230.72. All loans are subject to approval. {BRAND.name}{" "}
+            is committed to protecting your privacy in compliance with the GLBA
+            and CCPA. Loan terms, conditions, and eligibility requirements
+            apply.
           </p>
         </div>
       </div>

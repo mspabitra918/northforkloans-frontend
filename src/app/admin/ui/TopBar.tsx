@@ -6,16 +6,18 @@ export function Topbar({
   onRefresh,
   refreshing,
   onSignOut,
+  title = "Underwriting Queue",
 }: {
   session: Session | null;
   onRefresh: () => void;
   refreshing: boolean;
   onSignOut: () => void;
+  title?: string;
 }) {
   const initials = (session?.email ?? "?").slice(0, 2).toUpperCase();
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-navy-100 bg-white px-6">
-      <h1 className="text-lg font-bold text-navy-900">Underwriting Queue</h1>
+      <h1 className="text-lg font-bold text-navy-900">{title}</h1>
       <div className="flex items-center gap-3">
         <button
           type="button"

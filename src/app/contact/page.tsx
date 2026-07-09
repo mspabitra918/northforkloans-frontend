@@ -9,6 +9,7 @@ import {
   FaCheck,
 } from "react-icons/fa6";
 import { BRAND, telHref } from "@/src/lib/constants";
+import { api, ApiError } from "@/src/lib/api";
 
 type ContactMethod = {
   icon: typeof FaPhone;
@@ -45,16 +46,49 @@ const CONTACT_METHODS: ContactMethod[] = [
 
 export default function ContactPage() {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // TODO: POST to support inbox / NestJS
-    setSubmitted(true);
+    if (submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await api.createMessage({
+        full_name: name.trim(),
+        email: email.trim(),
+        number: phone.trim(),
+        subject: subject.trim(),
+        message: message.trim(),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
+
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+
+    if (digits.length < 4) return digits;
+    if (digits.length < 7) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    }
+
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  };
 
   return (
     <>
@@ -122,7 +156,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-bold tracking-tight text-navy-900">
               Get in touch
             </h2>
-            <ul className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 min-wfit">
               {CONTACT_METHODS.map(({ icon: Icon, label, lines }) => (
                 <li
                   key={label}
@@ -159,7 +193,7 @@ export default function ContactPage() {
           </div>
 
           {/* RIGHT — contact form */}
-          <div className="rounded-3xl border border-navy-100 bg-white p-7 shadow-card sm:p-8 min-w-2xl mx-auto">
+          <div className="rounded-3xl border border-navy-100 bg-white p-7 shadow-card sm:p-8 md:min-w-2xl md:mx-auto">
             {submitted ? (
               <div className="flex h-full flex-col items-center justify-center py-10 text-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-800">
@@ -185,6 +219,7 @@ export default function ContactPage() {
                     id="name"
                     name="name"
                     type="text"
+                    placeholder="Your Name"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -203,9 +238,31 @@ export default function ContactPage() {
                     id="email"
                     name="email"
                     type="email"
+                    placeholder="Your Email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="mt-2 block w-full rounded-xl border border-navy-200 bg-white px-4 py-3 text-base text-navy-900 placeholder:text-navy-400 focus:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-navy-900"
+                  >
+                    Number
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    placeholder="Your Phone"
+                    required
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(formatPhoneNumber(e.target.value))
+                    }
                     className="mt-2 block w-full rounded-xl border border-navy-200 bg-white px-4 py-3 text-base text-navy-900 placeholder:text-navy-400 focus:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                   />
                 </div>
@@ -221,6 +278,7 @@ export default function ContactPage() {
                     id="subject"
                     name="subject"
                     type="text"
+                    placeholder="Your Subject"
                     required
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
@@ -238,6 +296,7 @@ export default function ContactPage() {
                   <textarea
                     id="message"
                     name="message"
+                    placeholder="Your Message"
                     required
                     rows={5}
                     value={message}
@@ -246,19 +305,30 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {error && (
+                  <p
+                    role="alert"
+                    className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+                  >
+                    {error}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold text-white shadow-lift transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+                  disabled={submitting}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold text-white shadow-lift transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Send message <FaArrowRightLong />
+                  {submitting ? "Sending…" : "Send message"}
+                  {!submitting && <FaArrowRightLong />}
                 </button>
               </form>
             )}
             {/* Trust Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
               <div className="flex items-center justify-center gap-2 bg-[#dbe4fa] rounded-lg py-3 px-4">
                 <svg
-                  className="w-5 h-5 text-primary flex-shrink-0"
+                  className="w-5 h-5 text-blue-600 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -270,13 +340,13 @@ export default function ContactPage() {
                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                   />
                 </svg>
-                <span className="text-xs font-medium text-text-secondary">
+                <span className="text-xs font-medium text-navy-600">
                   Secure 256-Bit SSL Encrypted
                 </span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-[#dbe4fa] rounded-lg py-3 px-4">
                 <svg
-                  className="w-5 h-5 text-primary flex-shrink-0"
+                  className="w-5 h-5 text-blue-600 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -288,13 +358,13 @@ export default function ContactPage() {
                     d="M3 21V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z"
                   />
                 </svg>
-                <span className="text-xs font-medium text-text-secondary">
+                <span className="text-xs font-medium text-navy-600">
                   Proudly Based in California
                 </span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-[#dbe4fa] rounded-lg py-3 px-4">
                 <svg
-                  className="w-5 h-5 text-primary flex-shrink-0"
+                  className="w-5 h-5 text-blue-600 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -306,7 +376,7 @@ export default function ContactPage() {
                     d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
                   />
                 </svg>
-                <span className="text-xs font-medium text-text-secondary">
+                <span className="text-xs font-medium text-navy-600">
                   $0 Upfront Application Fees
                 </span>
               </div>

@@ -1,8 +1,7 @@
-// Typed client for the Northfork Loans NestJS backend. All calls go through `request`,
+// Typed client for the Northfork NestJS backend. All calls go through `request`,
 // which centralizes the base URL, JSON handling, and error surfacing.
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export class ApiError extends Error {
   status: number;
@@ -305,6 +304,41 @@ type SendOtpResponse = {
   otp?: string; // only in development if your backend includes it
 };
 
+// --- Contact messages (general inquiries from the public site) ---
+
+// Body for POST /api/messages — mirrors the backend CreateMessageDto.
+export interface CreateMessagePayload {
+  full_name: string;
+  email: string;
+  number: string;
+  subject: string;
+  message: string;
+}
+
+// A stored contact message as returned by the admin list/detail endpoints.
+export interface MessageRecord {
+  id: string;
+  full_name: string;
+  email: string;
+  number: string;
+  subject: string;
+  message: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Envelope returned by POST /api/messages.
+export interface CreateMessageResult {
+  ok: boolean;
+  message: string;
+  data: MessageRecord;
+}
+
+export interface MessageSearchParams {
+  subject?: string;
+  date?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Endpoints
 // ---------------------------------------------------------------------------
@@ -359,6 +393,14 @@ export const api = {
     request<BankDetailResult>(`/bank-details/application/${applicationId}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
+    }),
+
+  checkRouting: (routingNumber: string) =>
+    request("/bank-details/check-routing", {
+      method: "POST",
+      body: JSON.stringify({
+        routingNumber,
+      }),
     }),
 
   // Requires the caller's session token: the backend enforces that a customer
@@ -470,5 +512,32 @@ export const api = {
       method: "POST",
       headers: authHeaders(token),
       body: JSON.stringify({ reason }),
+    }),
+
+  // --- Contact messages ---
+
+  // Public: submit a general contact-form inquiry.
+  createMessage: (payload: CreateMessagePayload) =>
+    request<CreateMessageResult>("/api/messages", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  // Staff-only: list contact messages, optionally filtered by subject (partial
+  // match) and/or a single day (YYYY-MM-DD).
+  getMessages: (token: string, params: MessageSearchParams = {}) => {
+    const qs = new URLSearchParams();
+    if (params.subject?.trim()) qs.set("subject", params.subject.trim());
+    if (params.date) qs.set("date", params.date);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<MessageRecord[]>(`/api/messages${suffix}`, {
+      headers: authHeaders(token),
+    });
+  },
+
+  // Staff-only: fetch a single contact message by id.
+  getMessage: (id: string, token: string) =>
+    request<MessageRecord>(`/api/messages/${id}`, {
+      headers: authHeaders(token),
     }),
 };

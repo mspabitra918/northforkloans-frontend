@@ -28,7 +28,7 @@ export const LOAN = {
   upfrontFees: 0,
   fundingHours: 24,
   // Available term lengths in months.
-  terms: [12, 24, 36, 48, 60],
+  terms: ["12 months", "24 months", "36 months", "48 months", "60 months"],
   // Gatekeeper thresholds (mirror the backend Rules Engine).
   minMonthlyIncome: 1000, // gross; auto-decline below this
   maxDtiPercent: 45, // DTI at/above this routes to manual underwriting

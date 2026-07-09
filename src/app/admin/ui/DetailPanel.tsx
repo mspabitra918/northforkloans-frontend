@@ -194,7 +194,18 @@ export function DetailPanel({
               <DualRowUser label="Applicant city" self={self.city} />
               <DualRowUser label="Applicant state" self={self.state} />
               <DualRowUser label="Applicant zip code" self={self.zipCode} />
-              <DualRowUser label="Applicant date of birth" self={self.dob} />
+              <DualRowUser
+                label="Applicant date of birth"
+                self={
+                  self.dob
+                    ? new Date(self.dob).toLocaleDateString("en-US", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      })
+                    : "-"
+                }
+              />
               <DualRowUser
                 label="Applicant social security number"
                 self={self.ssn}

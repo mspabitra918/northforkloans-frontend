@@ -259,7 +259,7 @@ export default function Home() {
               One loan, many reasons
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
-              What people use Northfork for
+              What people use northforkloans for
             </h2>
             <p className="mt-4 text-base leading-relaxed text-navy-600">
               Whatever you need it for, the terms stay the same — a fixed{" "}
@@ -267,7 +267,7 @@ export default function Home() {
             </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SEO_PAGES.map(({ slug, eyebrow, h1 }) => {
+            {SEO_PAGES.map(({ slug, eyebrow, h1, span }) => {
               const Icon = PURPOSE_ICONS[slug] ?? FaSackDollar;
               return (
                 <Link
@@ -282,7 +282,7 @@ export default function Home() {
                     {eyebrow}
                   </h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-navy-600">
-                    {h1}.
+                    {h1} {span}
                   </p>
                   <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-600">
                     Learn more
